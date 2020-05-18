@@ -15,6 +15,7 @@ Include/
 Lib/
 Scripts/
 tcl/
+pyvenv.cfg
 
 # Django related 
 # src/main/settings/local.py
