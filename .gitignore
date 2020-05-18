@@ -15,7 +15,6 @@ Include/
 Lib/
 Scripts/
 tcl/
-pyvenv.cfg
 
 # Django related 
 # src/main/settings/local.py
@@ -129,6 +128,7 @@ celerybeat-schedule
 # Environments
 .env
 .venv
+.cfg
 env/
 venv/
 ENV/
@@ -142,8 +142,3 @@ ENV/
 
 # mkdocs documentation
 /site
-
-# mypy
-.mypy_cache/
-jjjjjjj
-LICENSE.txt
