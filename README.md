@@ -15,4 +15,6 @@ Activate the Virtualenv
 
 Install project dependencies - python -m pip install -r requirements.txt
 
+Migrating the database - python manage.py migrate
 
+Create Super User - python manage.py createsuper
