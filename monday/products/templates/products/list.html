@@ -6,7 +6,8 @@
     </h1>
     <div class="container">
         {% for obj in object_list %}
-            <b style="font-size: 1.5em;">{{ obj.title }} | Regular Rs.{{ obj.combo_regular_price }} | Sale Rs.{{ obj.combo_sale_price }} | {{ obj.products.all }}</b>
+            <b style="font-size: 1.5em;">{{ obj.title }} | Regular Rs.{{ obj.combo_regular_price }} | Sale Rs.{{ obj.combo_sale_price }}</b>
+            <button><a href="{% url 'carts:add_to_cart' obj.slug %}">Add To Cart</a></button>
             <br>
         {% endfor %}
     </div>

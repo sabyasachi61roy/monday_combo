@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body onload='document.form1.phone.focus()'>
+    <div class="mail">
+        <form name="form1" action="#">
+            <label for="phone">Enter your phone number:</label>
+            <input type="tel" name='phone'id='message' value=""/>
+            <br>
+            <input type="submit" name="submit" value="Submit" onclick="phonenumber(document.form1.phone)"/>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        function phonenumber(inputtxt)
+        {
+        var phoneno = /^\d{10}$/;
+        var message = document.getElementById("message");
+            if(inputtxt.value.match(phoneno))
+            {
+                alert(inputtxt.value);
+                console.log(message.value);
+                console.log(inputtxt.value);
+                return true;
+            }
+            else
+            {
+                alert("Phone Number cannot be less than 10 digits");
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>
