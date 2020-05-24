@@ -1,11 +1,119 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 
-<h1>Cart</h1>
-{% for item in cart.item.all %}
-{{ item }}
-<br>
-{%endfor%}
+<div>
+    <h1>Your Cart</h1>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Price</th>
+            <th scope="col">Sale Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        {% if cart.addon_item.exists %}
+            <tbody>
+                {% for combo_item in cart.combo_item.all %}
+                    <tr>
+                        <td>{{ combo_item.combo.title }}</td>
+                        <td>{{ combo_item.combo.combo_regular_price }}</td>
+                        <td>{{ combo_item.combo.combo_sale_price }}</td>
+                        <td>
+                            <a href="{% url 'carts:combo_remove_single_to_cart' combo_item.combo.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
+                            {{ combo_item.quantity }}
+                            <a href="{% url 'carts:combo_add_to_cart' combo_item.combo.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+                        </td>
+                        <td>
+                            {% if combo_item.combo.combo_sale_price %}
+                                {{ combo_item.get_total_combo_sale_price }}
+                                <span>Saved {{ combo_item.get_amount_saved }}</span>
+                            {% else %}
+                                {{ combo_item.get_total_combo_price }}
+                            {% endif %}
+                            <a href="{% url 'carts:combo_remove_from_cart' combo_item.combo.slug %}" style="margin-left: 10px;">
+                                <img src="{% static 'icons/trash.svg' %}" alt="">
+                            </a>
+                        </td>
+                    </tr>
+                {%endfor%}
+                {% for addon_item in cart.addon_item.all %}
+                    <tr>
+                        <td>{{ addon_item.addon.name }}</td>
+                        <td>{{ addon_item.addon.price }}</td>
+                        <td>-</td>
+                        <td>
+                            <a href="{% url 'carts:addon_remove_single_to_cart' addon_item.addon.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
+                            {{ addon_item.quantity }}
+                            <a href="{% url 'carts:addon_add_to_cart' addon_item.addon.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+                        </td>
+                        <td>
+                            {{ addon_item.get_total_addon_price }}
+                            <a href="{% url 'carts:addon_remove_from_cart' addon_item.addon.slug %}" style="margin-left: 10px;">
+                                <img src="{% static 'icons/trash.svg' %}" alt="">
+                            </a>
+                        </td>
+                    </tr>
+                {%endfor%}
+                <tr>
+                    <td span="col-12"></td>
+                    <td><b>Total</b><td><td><td><span class="cart-total"> {{ cart.get_total }} </span></td></td></td></td>
+                </tr>
+                <tr>
+                    {% if cart.get_total < 150 %}
+                    <td span="col-12"><i style="color:red">Your Cart Value is Less Than 150. Please Add more items</i></td>
+                    <td><td><td><td><a class="btn btn-success disabled" href="">Checkout</a><a class="btn btn-warning ml-1" href="/">Continue Shopping</a></td></td></td></td>
+                    {% else %}
+                    <td span="col-12"></td>
+                    <td><td><td><td><a class="btn btn-success" href="">Checkout</a></td></td></td></td>
+                    {% endif %}
+                </tr>
+            </tbody>
+        {% else %}
+        <tbody>
+            {% for item in cart.combo_item.all %}
+                <tr>
+                    <td>{{ item.combo.title }}</td>
+                    <td>{{ item.combo.combo_regular_price }}</td>
+                    <td>{{ item.combo.combo_sale_price }}</td>
+                    <td>
+                        <a href="{% url 'carts:combo_remove_single_to_cart' item.combo.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
+                        {{ item.quantity }}
+                        <a href="{% url 'carts:combo_add_to_cart' item.combo.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+                    </td>
+                    <td>
+                        {% if item.combo.combo_sale_price %}
+                            {{ item.get_total_combo_sale_price }}
+                            <span>Saved {{ item.get_amount_saved }}</span>
+                        {% else %}
+                            {{ item.get_total_combo_price }}
+                        {% endif %}
+                        <a href="{% url 'carts:combo_remove_from_cart' item.combo.slug %}" style="margin-left: 10px;">
+                            <img src="{% static 'icons/trash.svg' %}" alt="">
+                        </a>
+                    </td>
+                </tr>
+            {%endfor%}
+            <tr>
+                <td span="col-12"></td>
+                <td><b>Total</b><td><td><td><span class="cart-total"> {{ cart.get_total }}</span></td></td></td></td>
+            </tr>
+            <tr>
+                {% if cart.get_total < 150 %}
+                <td span="col-12"><i style="color:red">Your Cart Value is Less Than 150. Please Add more items</i></td>
+                <td><td><td><td><a class="btn btn-success disabled" href="">Checkout</a><a class="btn btn-warning ml-1" href="/">Continue Shopping</a></td></td></td></td>
+                {% else %}
+                <td span="col-12"></td>
+                <td><td><td><td><a class="btn btn-success" href="">Checkout</a></td></td></td></td>
+                {% endif %}
+            </tr>
+        </tbody>
+        {% endif %}
+
+      </table>
+</div>
 
 {% endblock %}

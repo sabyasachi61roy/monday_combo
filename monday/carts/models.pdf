@@ -90,15 +90,16 @@ class Cart(models.Model):
         c_cart_item = 0
         a_cart_item = 0
         cart_total = 0
-        if self.addon_item.all().exists():
-            for a in self.combo_item.all():
-                c_cart_item += a.get_final_price()
-            for b in self.addon_item.all():
-                a_cart_item += b.get_total_addon_price()
-            cart_total = a_cart_item + c_cart_item
+        
+        if AddonCartItem.get_total_addon_price() != 0:
+            for combo_cart_item in self.combo_item.all():
+                c_cart_item += combo_cart_item.get_final_price()
+            for addon_cart_item in self.addon_item.all():
+                a_cart_item += addon_cart_item.get_total_addon_price()
+            cart_total = c_cart_item + a_cart_item
             self.cart_total = cart_total
             self.save()
-            return cart_total 
+            return cart_total
         else:
             for cart_item in self.combo_item.all():
                 cart_total += cart_item.get_final_price()
