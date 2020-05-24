@@ -1,12 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>
-        List
-    </h1>
     <div class="container">
+        <h1>Combos</h1>
+        <hr>
         {% for obj in object_list %}
-            <b style="font-size: 1.5em;">{{ obj.title }} | Regular Rs.{{ obj.combo_regular_price }} | Sale Rs.{{ obj.combo_sale_price }} | {{ obj.products.all }}</b>
+            <b style="font-size: 1.5em;">{{ obj.title }} | Regular Rs.{{ obj.combo_regular_price }} | Sale Rs.{{ obj.combo_sale_price }}</b>
+            <a class="btn btn-success" href="{% url 'carts:combo_add_to_cart' obj.slug %}">Add To Cart</a>
+            <br>
+        {% endfor %}
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div class="container">
+        <h1>Addons</h1>
+        <hr>
+        {% for addon in addons %}
+        <b style="font-size: 1.5em;">{{addon.name}} | Rs.{{ addon.price }}</b>
+            <a class="btn btn-success" href="{% url 'carts:addon_add_to_cart' addon.slug %}">Add To Cart</a>
             <br>
         {% endfor %}
     </div>

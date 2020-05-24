@@ -1,6 +1,35 @@
 from django.db import models
 from django.db.models.signals import post_save, pre_save, m2m_changed
 # Create your models here.
+class AddonQuerySet(models.query.QuerySet):
+    def active(self):
+        return self.filter(active=True)
+
+class AddonManager(models.Manager):
+    def get_queryset(self):
+        return AddonQuerySet(self.model, using=self._db)
+
+    def all(self):
+        return self.get_queryset().active()
+
+    def get_by_id(self, id):
+        qs = self.get_queryset.filter(id=id)
+        if qs.count() == 1:
+            return qs.first()
+        return None
+
+class Addon(models.Model):
+    name = models.CharField(max_length=120)
+    active = models.BooleanField(default=True)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(blank=True, null=True)
+
+    objects = AddonManager()
+
+    def __str__(self):
+        return self.name
 
 class Prodcut(models.Model):
     name = models.CharField(max_length=120)
