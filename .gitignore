@@ -21,6 +21,10 @@ pyvenv.cfg
 # src/main/settings/local.py
 main/settings/local.py
 # static-cdn/  # any collected static files 
+db.sqlite3
+*db.sqlite3
+.sqile3/*
+*.sqlite3
 
 
 # Byte-compiled / optimized / DLL files

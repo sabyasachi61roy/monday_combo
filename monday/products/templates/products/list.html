@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>
+        List
+    </h1>
+    <div class="container">
+        {% for obj in object_list %}
+            <b style="font-size: 1.5em;">{{ obj.title }} | Regular Rs.{{ obj.combo_regular_price }} | Sale Rs.{{ obj.combo_sale_price }} | {{ obj.products.all }}</b>
+            <br>
+        {% endfor %}
+    </div>
+{% endblock %}
