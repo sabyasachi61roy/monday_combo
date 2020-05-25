@@ -5,12 +5,21 @@ from billing.models import BillingProfile
 from deliverypoints.models import SelectDeliveryPoint, DeliveryPoint
 from carts.models import Cart
 from main.utils import unique_order_id_generator
+from django.conf import settings
+
+User = settings.AUTH_USER_MODEL
 
 ORDER_STATUS_CHOICES = (
     ('Created', 'Created'),
-    ('Paid', 'Paid'),
+    ('Processing', 'Processing'),
     ('Shipped', 'Shipped'),
+    ('Cancelled', 'Cancelled'),
     ('Refunded', 'Refunded'),
+)
+
+ORDER_PAYMENT_METHOD = (
+    ('COD', "COD"),
+    ("PREPAID", "PREPAID"),
 )
 
 # Create your models here.
@@ -27,11 +36,12 @@ class OrderManager(models.Manager):
 
 class Order(models.Model):
     order_id = models.CharField(max_length=120, blank=True)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     billing_profile = models.ForeignKey(BillingProfile, blank=True, null=True, on_delete=models.CASCADE)
     delivery_point = models.ForeignKey(DeliveryPoint, blank=True, null=True, on_delete=models.CASCADE)
     shipping_total = models.DecimalField(default=5.99, max_digits=100, decimal_places=2) 
     total = models.DecimalField(default=0.00, max_digits=100, decimal_places=2)
-    
+    payment_method = models.CharField(max_length=120, choices=ORDER_PAYMENT_METHOD)
     status = models.CharField(max_length=120, default='created', choices=ORDER_STATUS_CHOICES)
     active = models.BooleanField(default=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
@@ -49,6 +59,22 @@ class Order(models.Model):
         self.total = formatted_total
         self.save()
         return new_total
+
+    def check_done(self):
+        billing_profile=self.billing_profile
+        delivery_point = self.delivery_point
+        total = self.total
+        if self.total < 0:
+            return False
+        elif delivery_point and total > 0:
+            return True
+        return False
+
+    def mark_cod(self):
+        if self.check_done():
+            self.payment_method = "COD"
+            self.save()
+        return self.status
 
 def pre_save_order_id(sender, instance, *args, **kwargs):
     if not instance.order_id:

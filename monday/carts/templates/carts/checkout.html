@@ -24,6 +24,10 @@
             <div class="container">
                 Delivery Point - {{object.delivery_point}}, {{object.delivery_point.postal_code}}
             </div>
+            <form action="" method="POST" class="form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Checkout</button>
+            </form>
         {% endif %}
     {% endif %}
 {% endblock %}

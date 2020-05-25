@@ -195,9 +195,27 @@ def checkout(request):
             dpoint_qs = DeliveryPoint.objects.all()
         order_obj, order_obj_created = Order.objects.new_or_get(cart_obj, billing_profile)
         if delivery_point:
+            order_obj.user = request.user
             order_obj.delivery_point = DeliveryPoint.objects.get(id=delivery_point)
             del request.session['delivery_point_id']
             order_obj.save()
+    if request.method == "POST":
+        is_done = order_obj.check_done()
+        if is_done:
+            order_obj.mark_cod()
+            cart_obj.ordered=True
+            c = cart_obj.combo_item.all()
+            c.update(ordered=True)
+            a = cart_obj.addon_item.all()
+            a.update(ordered=True)
+            for ci in c:
+                ci.save()
+            for ai in a:
+                ai.save()
+            cart_obj.save()
+            del request.session['cart_id']
+            return redirect("carts:success")
+
     context = {
         'object': order_obj,
         'billing_profile': billing_profile,
@@ -205,4 +223,12 @@ def checkout(request):
         'dpointqs': dpoint_qs,
     }
     return render(request, 'carts/checkout.html', context)
+
+def success(request):
+    if request.user.is_authenticated:
+        obj = request.user.order_set.last()
+        context = {
+            'obj': obj
+        }
+    return render(request, "carts/success.html", context)
             
