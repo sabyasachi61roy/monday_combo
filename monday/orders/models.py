@@ -6,6 +6,7 @@ from deliverypoints.models import SelectDeliveryPoint, DeliveryPoint
 from carts.models import Cart
 from main.utils import unique_order_id_generator
 from django.conf import settings
+from address.models import Address
 
 User = settings.AUTH_USER_MODEL
 
@@ -38,6 +39,8 @@ class Order(models.Model):
     order_id = models.CharField(max_length=120, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     billing_profile = models.ForeignKey(BillingProfile, blank=True, null=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, related_name="shipping_address", null=True, blank=True, on_delete=models.CASCADE)
+    billing_address = models.ForeignKey(Address, related_name="billing_address", null=True, blank=True, on_delete=models.CASCADE)
     delivery_point = models.ForeignKey(DeliveryPoint, blank=True, null=True, on_delete=models.CASCADE)
     shipping_total = models.DecimalField(default=5.99, max_digits=100, decimal_places=2) 
     total = models.DecimalField(default=0.00, max_digits=100, decimal_places=2)
@@ -69,9 +72,20 @@ class Order(models.Model):
         elif delivery_point and total > 0:
             return True
         return False
+    
+    def check_d(self):
+        billing_profile = self.billing_profile
+        shipping_address = self.shipping_address
+        billing_address = self.billing_address
+        total = self.total
+        if self.total < 0:
+            return False
+        elif billing_address and shipping_address and billing_address and total > 0:
+            return True
+        return False
 
     def mark_cod(self):
-        if self.check_done():
+        if self.check_done() or self.check_d():
             self.payment_method = "COD"
             self.save()
         return self.status

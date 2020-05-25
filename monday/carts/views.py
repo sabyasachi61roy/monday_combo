@@ -5,6 +5,8 @@ from deliverypoints.forms import SelectDeliveryPointForm
 from billing.models import BillingProfile
 from deliverypoints.models import SelectDeliveryPoint, DeliveryPoint
 from orders.models import Order
+from address.forms import AddressForm
+from address.models import Address
 
 # Create your views here.
 
@@ -185,42 +187,93 @@ def checkout(request):
     order_obj = None
     if cart_created or cart_obj.combo_item.count() == 0:
         return redirect('carts:cart')
+    address_form = AddressForm()
     dpointform = SelectDeliveryPointForm()
     delivery_point = request.session.get("delivery_point_id", None)
+    billing_address_id = request.session.get("billing_address_id", None)
+    shipping_address_id = request.session.get("shipping_address_id", None)
     billing_profile, billing_profile_created = BillingProfile.objects.new_or_get(request)
     print(billing_profile)
     dpoint_qs = None
+    address_qs = None
     if billing_profile is not None:
         if request.user.is_authenticated:
             dpoint_qs = DeliveryPoint.objects.all()
+            address_qs = Address.objects.filter(billing_profile=billing_profile)
         order_obj, order_obj_created = Order.objects.new_or_get(cart_obj, billing_profile)
+        if shipping_address_id:
+            order_obj.shipping_address = Address.objects.get(id=shipping_address_id)
+            del request.session["shipping_address_id"]
+        if billing_address_id:
+            order_obj.billing_address = Address.objects.get(id=billing_address_id)
+            del request.session["billing_address_id"]
         if delivery_point:
             order_obj.user = request.user
             order_obj.delivery_point = DeliveryPoint.objects.get(id=delivery_point)
-            del request.session['delivery_point_id']
+            # del request.session['delivery_point_id']
             order_obj.save()
-    if request.method == "POST":
-        is_done = order_obj.check_done()
-        if is_done:
-            order_obj.mark_cod()
-            cart_obj.ordered=True
-            c = cart_obj.combo_item.all()
-            c.update(ordered=True)
-            a = cart_obj.addon_item.all()
-            a.update(ordered=True)
-            for ci in c:
-                ci.save()
-            for ai in a:
-                ai.save()
-            cart_obj.save()
-            del request.session['cart_id']
-            return redirect("carts:success")
+        elif billing_address_id or shipping_address_id:
+            order_obj.user = request.user
+            order_obj.save()
+    if order_obj.delivery_point is not None:
+        if request.method == "POST":
+            is_done = order_obj.check_done()
+            if is_done:
+                order_obj.mark_cod()
+                cart_obj.ordered=True
+                c = cart_obj.combo_item.all()
+                c.update(ordered=True)
+                a = cart_obj.addon_item.all()
+                a.update(ordered=True)
+                for ci in c:
+                    ci.save()
+                for ai in a:
+                    ai.save()
+                cart_obj.save()
+                del request.session['cart_id']
+                return redirect("carts:success")
+        del request.session['delivery_point_id']
+    else:
+        if request.method == "POST":
+            is_done = order_obj.check_d()
+            if is_done:
+                order_obj.mark_cod()
+                cart_obj.ordered=True
+                c = cart_obj.combo_item.all()
+                c.update(ordered=True)
+                a = cart_obj.addon_item.all()
+                a.update(ordered=True)
+                for ci in c:
+                    ci.save()
+                for ai in a:
+                    ai.save()
+                cart_obj.save()
+                del request.session['cart_id']
+                return redirect("carts:success")
+    # if request.method == "POST":
+    #     is_done = order_obj.check_done()
+    #     if is_done:
+    #         order_obj.mark_cod()
+    #         cart_obj.ordered=True
+    #         c = cart_obj.combo_item.all()
+    #         c.update(ordered=True)
+    #         a = cart_obj.addon_item.all()
+    #         a.update(ordered=True)
+    #         for ci in c:
+    #             ci.save()
+    #         for ai in a:
+    #             ai.save()
+    #         cart_obj.save()
+    #         del request.session['cart_id']
+    #         return redirect("carts:success")
 
     context = {
         'object': order_obj,
         'billing_profile': billing_profile,
         'dpointform': dpointform,
         'dpointqs': dpoint_qs,
+        'address_form':address_form,
+        'address_qs': address_qs,
     }
     return render(request, 'carts/checkout.html', context)
 
@@ -231,4 +284,3 @@ def success(request):
             'obj': obj
         }
     return render(request, "carts/success.html", context)
-            
