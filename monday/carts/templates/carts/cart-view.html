@@ -68,7 +68,7 @@
                     <td><td><td><td><a class="btn btn-success disabled" href="">Checkout</a><a class="btn btn-warning ml-1" href="/">Continue Shopping</a></td></td></td></td>
                     {% else %}
                     <td span="col-12"></td>
-                    <td><td><td><td><a class="btn btn-success" href="">Checkout</a></td></td></td></td>
+                    <td><td><td><td><a class="btn btn-success" href="{% url 'carts:checkout' %}">Checkout</a></td></td></td></td>
                     {% endif %}
                 </tr>
             </tbody>
@@ -107,7 +107,7 @@
                 <td><td><td><td><a class="btn btn-success disabled" href="">Checkout</a><a class="btn btn-warning ml-1" href="/">Continue Shopping</a></td></td></td></td>
                 {% else %}
                 <td span="col-12"></td>
-                <td><td><td><td><a class="btn btn-success" href="">Checkout</a></td></td></td></td>
+                <td><td><td><td><a class="btn btn-success" href="{% url 'carts:checkout' %}">Checkout</a></td></td></td></td>
                 {% endif %}
             </tr>
         </tbody>

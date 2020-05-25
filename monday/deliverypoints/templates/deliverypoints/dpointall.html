@@ -1,0 +1,16 @@
+<form method="POST" action='{% if action_url %}{{ action_url }}{% else %}{% url "account:login" %}{% endif %}'>
+    {% csrf_token %}
+    {% if next_url %}
+        <input type="hidden" name='next' value="{{ next_url }}">
+    {% endif %}
+    {% for dpoint in dpointqs %}
+    <label for="delivery_point_{{dpoint.id}}">
+        <input type="radio" id="{{ dpoint.id }}" name="delivery_point" value="{{ dpoint.id }}">
+        {{ dpoint }}
+        {{ dpoint.postal_code }}
+        <br>
+    </label>
+    <br>
+    {% endfor %}
+    <button type="submit" class="btn btn-default btn-success">Submit</button>
+</form>

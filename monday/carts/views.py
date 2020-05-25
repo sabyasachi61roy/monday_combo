@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Cart, ComboCartItem, AddonCartItem
 from products.models import Combo, Addon
+from deliverypoints.forms import SelectDeliveryPointForm
+from billing.models import BillingProfile
+from deliverypoints.models import SelectDeliveryPoint, DeliveryPoint
+from orders.models import Order
 
 # Create your views here.
 
@@ -175,3 +179,30 @@ def addon_remove_from_cart(request, slug):
     else:
         print("Home")
         return redirect("/")
+
+def checkout(request):
+    cart_obj, cart_created = Cart.objects.new_or_get(request)
+    order_obj = None
+    if cart_created or cart_obj.combo_item.count() == 0:
+        return redirect('carts:cart')
+    dpointform = SelectDeliveryPointForm()
+    delivery_point = request.session.get("delivery_point_id", None)
+    billing_profile, billing_profile_created = BillingProfile.objects.new_or_get(request)
+    print(billing_profile)
+    dpoint_qs = None
+    if billing_profile is not None:
+        if request.user.is_authenticated:
+            dpoint_qs = DeliveryPoint.objects.all()
+        order_obj, order_obj_created = Order.objects.new_or_get(cart_obj, billing_profile)
+        if delivery_point:
+            order_obj.delivery_point = DeliveryPoint.objects.get(id=delivery_point)
+            del request.session['delivery_point_id']
+            order_obj.save()
+    context = {
+        'object': order_obj,
+        'billing_profile': billing_profile,
+        'dpointform': dpointform,
+        'dpointqs': dpoint_qs,
+    }
+    return render(request, 'carts/checkout.html', context)
+            

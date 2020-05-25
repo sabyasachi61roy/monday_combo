@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Checkout</h1>
+    {% if not billing_profile %}
+    <p>Please Login</p>
+    {% else %}
+        {% if not object.delivery_point %}
+            
+            <div class="container">
+                {% url 'deliverypoints:delivery_points_select' as delivery_points_select %}
+                {% include 'deliverypoints/dpointall.html' with dpointqs=dpointqs next_url=request.build_absolute_uri action_url=delivery_points_select %}
+            </div>
+        {% else %}
+            <div class="container">
+                {% for c in object.cart.combo_item.all %}{{c}}{% endfor %}
+                <br>
+                {% for a in object.cart.addon_item.all %}{{a}}{% endfor %}
+                <br>
+                Shipping Total - {{object.shipping_total}}
+                <br>
+                Order Total - {{object.total}}
+            </div>
+            <div class="container">
+                Delivery Point - {{object.delivery_point}}, {{object.delivery_point.postal_code}}
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
