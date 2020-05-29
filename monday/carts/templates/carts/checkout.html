@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Checkout</h1>
+    {% if not billing_profile %}
+    <p>Please Login</p>
+    {% else %}
+        {% if not object.delivery_point %}
+        {% if not object.shipping_address %}
+            <div class="container">
+                {% url 'deliverypoints:delivery_points_select' as delivery_points_select %}
+                {% include 'deliverypoints/dpointall.html' with dpointqs=dpointqs next_url=request.build_absolute_uri action_url=delivery_points_select %}
+            </div>
+        {% endif %}
+        {% else %}
+            <div class="container">
+                {% for c in object.cart.combo_item.all %}{{c}}{% endfor %}
+                <br>
+                {% for a in object.cart.addon_item.all %}{{a}}{% endfor %}
+                <br>
+                Shipping Total - {{object.shipping_total}}
+                <br>
+                Order Total - {{object.total}}
+            </div>
+            <div class="container">
+                Delivery Point - {{object.delivery_point}}, {{object.delivery_point.postal_code}}
+            </div>
+            <form action="" method="POST" class="form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Checkout</button>
+            </form>
+        {% endif %}
+        {% if not object.shipping_address %}
+            {% if not object.delivery_point %}
+            <div class="col-12">
+                <p class="lead">Shipping</p>
+                <hr/>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-6">
+                    {% url "address:checkout_address_create" as checkout_address_create %}
+                    {% include 'address/snippets/form.html' with form=address_form next_url=request.build_absolute_uri action_url=checkout_address_create address_type='shipping' %}
+                </div>
+                <div class="col-6">
+                    {% url 'checkout_address_reuse' as checkout_address_reuse %}
+                    {% include 'address/previous-address.html' with address_qs=address_qs next_url=request.build_absolute_uri action_url=checkout_address_reuse addres_type='shipping' %}
+                </div>
+            </div>
+            {% endif %}
+        {% elif not object.billing_address %}
+            {% if not object.delivery_point %}
+            <div class="col-12">
+                <p class="lead">Billing</p>
+                <hr/>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-6">
+                    {% url "address:checkout_address_create" as checkout_address_create %}
+                    {% include 'address/snippets/form.html' with form=address_form next_url=request.build_absolute_uri action_url=checkout_address_create address_type='billing' %}
+                </div>
+                <div class="col-6">
+                    {% url 'checkout_address_reuse' as checkout_address_reuse %}
+                    {% include 'address/previous-address.html' with address_qs=address_qs next_url=request.build_absolute_uri action_url=checkout_address_reuse addres_type='billing' %}
+                </div>
+            </div>
+            {%endif%}
+        {% else %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-6">
+                        <p><b>Cart Items:</b> {% for c in object.cart.combo_item.all %}{{c}}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                        <p><b>Cart Items:</b> {% for a in object.cart.addon_item.all %}{{a}}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                        <p><b>Cart Total - </b>{{ object.cart.cart_total }}</p>
+                        <p><b>Shipping Total -</b> {{ object.shipping_total }}</p>
+                        <p><b>Order Total -</b> {{ object.total }} </p>
+                    </div>
+                    <div class="col-6">
+                        <p><b>Shipping Address:</b> {{ object.shipping_address.get_address }}</p>
+                        <p><b>Billing Address:</b> {{ object.billing_address.get_address }}</p>
+                    </div>
+                </div>
+                <form action="" method="POST" class="form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Checkout</button>
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
