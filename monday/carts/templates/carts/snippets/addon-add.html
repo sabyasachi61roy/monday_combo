@@ -1,0 +1,6 @@
+{% load static %}
+<form method="POST" action="{% url 'carts:addon_add_to_cart' %}" data-endpoint="{% url 'carts:addon_add_to_cart' %}" class="form add-ajax">
+    {% csrf_token %}
+    <input type="hidden" name="addon_id" value="{{ addon_id }}">
+    <button class="btn" type="submit" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt="+"></button>
+</form>

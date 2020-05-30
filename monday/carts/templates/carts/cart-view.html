@@ -5,7 +5,7 @@
 
 <div>
     <h1>Your Cart</h1>
-    <table class="table">
+    <table class="table cart-table">
         <thead>
           <tr>
             <th scope="col">Item</th>
@@ -16,16 +16,20 @@
           </tr>
         </thead>
         {% if cart.addon_item.exists %}
-            <tbody>
+            <tbody class="cart-body">
                 {% for combo_item in cart.combo_item.all %}
-                    <tr>
+                    <tr class="combo-body">
                         <td>{{ combo_item.combo.title }}</td>
                         <td>{{ combo_item.combo.combo_regular_price }}</td>
                         <td>{{ combo_item.combo.combo_sale_price }}</td>
                         <td>
-                            <a href="{% url 'carts:combo_remove_single_to_cart' combo_item.combo.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
-                            {{ combo_item.quantity }}
-                            <a href="{% url 'carts:combo_add_to_cart' combo_item.combo.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+
+                            {% include "carts/snippets/combo-remove-single.html" with combo_id=combo_item.combo.id %}
+                            
+                            <span class="combo-quantity">{{ combo_item.quantity }}</span>
+                            
+                            {% include "carts/snippets/combo-add.html" with combo_id=combo_item.combo.id %}
+
                         </td>
                         <td>
                             {% if combo_item.combo.combo_sale_price %}
@@ -34,27 +38,31 @@
                             {% else %}
                                 {{ combo_item.get_total_combo_price }}
                             {% endif %}
-                            <a href="{% url 'carts:combo_remove_from_cart' combo_item.combo.slug %}" style="margin-left: 10px;">
-                                <img src="{% static 'icons/trash.svg' %}" alt="">
-                            </a>
+                            
+                            {% include "carts/snippets/combo-remove.html" with combo_id=combo_item.combo.id %}
+
                         </td>
                     </tr>
                 {%endfor%}
                 {% for addon_item in cart.addon_item.all %}
-                    <tr>
+                    <tr class="addon-body">
                         <td>{{ addon_item.addon.name }}</td>
                         <td>{{ addon_item.addon.price }}</td>
                         <td>-</td>
                         <td>
-                            <a href="{% url 'carts:addon_remove_single_to_cart' addon_item.addon.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
-                            {{ addon_item.quantity }}
-                            <a href="{% url 'carts:addon_add_to_cart' addon_item.addon.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+
+                            {% include "carts/snippets/addon-remove-single.html" with addon_id=addon_item.addon.id %}
+
+                            <span class="addon-quantity">{{ addon_item.quantity }}</span>
+
+                            {% include "carts/snippets/addon-add.html" with addon_id=addon_item.addon.id %}
+
                         </td>
                         <td>
                             {{ addon_item.get_total_addon_price }}
-                            <a href="{% url 'carts:addon_remove_from_cart' addon_item.addon.slug %}" style="margin-left: 10px;">
-                                <img src="{% static 'icons/trash.svg' %}" alt="">
-                            </a>
+
+                            {% include "carts/snippets/addon-remove.html" with addon_id=addon_item.addon.id %}
+
                         </td>
                     </tr>
                 {%endfor%}
@@ -73,16 +81,19 @@
                 </tr>
             </tbody>
         {% else %}
-        <tbody>
+        <tbody class="cart-body">
             {% for item in cart.combo_item.all %}
-                <tr>
+                <tr class="combo-body">
                     <td>{{ item.combo.title }}</td>
                     <td>{{ item.combo.combo_regular_price }}</td>
                     <td>{{ item.combo.combo_sale_price }}</td>
                     <td>
-                        <a href="{% url 'carts:combo_remove_single_to_cart' item.combo.slug %}" style="margin-right: 5px;"><img src="{% static 'icons/minus-circle.svg' %}" alt=""></a>
+                        {% include "carts/snippets/combo-remove-single.html" with combo_id=item.combo.id %}
+                        
                         {{ item.quantity }}
-                        <a href="{% url 'carts:combo_add_to_cart' item.combo.slug %}" style="margin-left: 5px;"><img src="{% static 'icons/plus-circle.svg' %}" alt=""></a>
+
+                        {% include "carts/snippets/combo-add.html" with combo_id=item.combo.id %}
+
                     </td>
                     <td>
                         {% if item.combo.combo_sale_price %}
@@ -91,9 +102,8 @@
                         {% else %}
                             {{ item.get_total_combo_price }}
                         {% endif %}
-                        <a href="{% url 'carts:combo_remove_from_cart' item.combo.slug %}" style="margin-left: 10px;">
-                            <img src="{% static 'icons/trash.svg' %}" alt="">
-                        </a>
+
+                        {% include "carts/snippets/combo-remove.html" with combo_id=item.combo.id %}
                     </td>
                 </tr>
             {%endfor%}
@@ -113,7 +123,7 @@
         </tbody>
         {% endif %}
 
-      </table>
+    </table>
 </div>
 
 {% endblock %}

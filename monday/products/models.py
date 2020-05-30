@@ -1,4 +1,8 @@
+import os
+import random
+from django.db.models import Q
 from django.db import models
+from django.urls import reverse
 from django.db.models.signals import post_save, pre_save, m2m_changed
 # Create your models here.
 class AddonQuerySet(models.query.QuerySet):
@@ -30,6 +34,10 @@ class Addon(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        # return "/products/{slug}/".format(slug=self.slug)
+        return reverse('products:addon-detail', kwargs={'slug':self.slug})
 
 class Prodcut(models.Model):
     name = models.CharField(max_length=120)
@@ -73,6 +81,10 @@ class Combo(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        # return "/products/{slug}/".format(slug=self.slug)
+        return reverse('products:combo-detail', kwargs={'slug':self.slug})
 
 def m2m_price_changed_receiver(sender, action, instance, *args, **kwargs):
     if action == 'post_add' or action == 'post_remove' or action == 'post_clear':

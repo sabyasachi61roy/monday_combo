@@ -38,8 +38,11 @@ class ComboCartItem(models.Model):
     ordered = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.quantity} of {self.combo.title}"
+        return f"{self.quantity} of {self.combo}"
         # return str(self.id)
+
+    def combo_quantity(self):
+        return self.quantity
 
     def get_total_combo_price(self):
         return self.quantity * self.combo.combo_regular_price
@@ -66,6 +69,9 @@ class AddonCartItem(models.Model):
         return f"{self.quantity} of {self.addon.name}"
         # return str(self.id)
     
+    def addon_quantity(self):
+        return self.quantity
+
     def get_total_addon_price(self):
         addon_total = 0
         addon_total = self.quantity * self.addon.price
@@ -106,4 +112,19 @@ class Cart(models.Model):
             self.save()
             return cart_total
 
+    def get_cartItems(self):
+        c = 0
+        a = 0
 
+        if self.addon_item.all().exists():
+            for combo in self.combo_item.all():
+                c += combo.combo_quantity()
+            for addon in self.addon_item.all():
+                a += addon.addon_quantity()
+        else:
+            for combo in self.combo_item.all():
+                c += combo.combo_quantity()
+        
+        total = c + a
+        
+        return total

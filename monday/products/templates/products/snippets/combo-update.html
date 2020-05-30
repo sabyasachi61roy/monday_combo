@@ -1,0 +1,7 @@
+<form method="POST" action="{% url 'carts:combo_add_to_cart' %}" data-endpoint="{% url 'carts:combo_add_to_cart' %}" class="form add-ajax">
+    {% csrf_token %}
+    <input type="hidden" name="combo_id" value="{{ combo.id }}">
+    <span class="submit-span">
+        <button type="submit" class="btn btn-success">Add to Cart</button>
+    </span>
+</form>

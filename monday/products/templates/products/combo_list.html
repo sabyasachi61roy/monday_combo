@@ -12,16 +12,4 @@
             <br>
         {% endfor %}
     </div>
-    <br>
-    <hr>
-    <br>
-    <div class="container">
-        <h1>Addons</h1>
-        <hr>
-        {% for addon in addons %}
-        <b style="font-size: 1.5em;">{{addon.name}} | Rs.{{ addon.price }}</b>
-            {% include "products/snippets/addon-update.html" with addon_id=addon.id %}
-            <br>
-        {% endfor %}
-    </div>
 {% endblock %}
