@@ -5,9 +5,24 @@ from django.db import models
 from django.urls import reverse
 from django.db.models.signals import post_save, pre_save, m2m_changed
 # Create your models here.
+class Prodcut(models.Model):
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    regular_price = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    sale_price = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 class AddonQuerySet(models.query.QuerySet):
     def active(self):
         return self.filter(active=True)
+
+    def search(self, query):
+        lookups = Q(title__icontains=query)
+        return self.filter(lookups).distinct()
 
 class AddonManager(models.Manager):
     def get_queryset(self):
@@ -21,6 +36,9 @@ class AddonManager(models.Manager):
         if qs.count() == 1:
             return qs.first()
         return None
+    
+    def search(self, query):
+        return self.get_queryset().active().search(query)
 
 class Addon(models.Model):
     name = models.CharField(max_length=120)
@@ -39,21 +57,14 @@ class Addon(models.Model):
         # return "/products/{slug}/".format(slug=self.slug)
         return reverse('products:addon-detail', kwargs={'slug':self.slug})
 
-class Prodcut(models.Model):
-    name = models.CharField(max_length=120)
-    description = models.TextField(blank=True)
-    regular_price = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    sale_price = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    slug = models.SlugField(blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
 
 class ComboQuerySet(models.query.QuerySet):
     def active(self):
         return self.filter(active=True)
+
+    def search(self, query):
+        lookups = Q(title__icontains=query)
+        return self.filter(lookups).distinct()
 
 class ComboManager(models.Manager):
     def get_queryset(self):
@@ -67,6 +78,9 @@ class ComboManager(models.Manager):
         if qs.count() == 1:
             return qs.first()
         return None
+    
+    def search(self, query):
+        return self.get_queryset().active().search(query)
 
 class Combo(models.Model):
     products = models.ManyToManyField(Prodcut)

@@ -103,7 +103,8 @@ def combo_add_to_cart(request):
             # "not_updated": not updated
             "ItemCount": cartCount
             }   
-            return JsonResponse(json_data)
+            return JsonResponse(json_data, status=200)
+            # return JsonResponse("message: Error", status_code=400)
 
     return redirect("carts:cart")
 

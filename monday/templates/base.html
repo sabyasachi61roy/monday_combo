@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,8 @@
     <title>Monday</title>
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <!-- <script src="https://kit.fontawesome.com/b73372c1fd.js" crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+    <script src="https://kit.fontawesome.com/c833c6d420.js" crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -30,12 +32,13 @@
             <a class="nav-link" href="{% url 'carts:cart' %}">Cart <span class="cart-count">{{cart.get_cartItems}}</span></a>
           </li>
         </ul>
+        {% include 'search/snippets/search-form.html' %}
       </div>
   </nav>
 
   {% block content%}
   {% endblock %}
-
+<!-- mansoori 25kg -->
   <!-- <script>
     function getCookie(name) {
       var cookieArr = document.cookie.split(";");
@@ -60,100 +63,10 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 
-  <script>
-    $(document).ready(function(){
-      var comboForm = $(".add-ajax")
-
-      comboForm.submit(function(event){
-        event.preventDefault();
-        // console.log("Form not sending...")
-        
-        var thisForm = $(this)
-        // var actionEndpoint = thisForm.attr("action");
-        var actionEndpoint = thisForm.attr("data-endpoint");
-        var httpMethod = thisForm.attr("method");
-        var formData = thisForm.serialize();
-
-        // console.log(thisForm.attr("action"), thisForm.attr("method"))
-        $.ajax({
-          url: actionEndpoint,
-          method: httpMethod,
-          data: formData,
-          success: function(data){
-            // console.log("success", data)
-            // console.log("Added",data.added)
-            // console.log("Updated", data.updated)
-
-            var submitSpan = thisForm.find(".submit-span")
-
-            if(data.added){
-              submitSpan.html('<button type="submit" class="btn btn-success">Add More?</button>')
-            }else{
-              if(data.updated){
-                submitSpan.html('<button type="submit" class="btn btn-success">Add More?</button>')
-              }else{
-                submitSpan.html('<button type="submit" class="btn btn-success">Add to Cart</button>')
-              }
-            }
-            // console.log(submitSpan.html())
-            var cartCount = $(".cart-count")
-            cartCount.text(data.ItemCount)
-            console.log(data.ItemCount)
-            if(window.location.href.indexOf('cart') != -1){
-              refreshCart()
-            }
-          },
-          error: function(errorData){
-            console.log("No API")
-            console.log("error", errorData)
-          }
-        })
-
-      })
-
-      function refreshCart(){
-        console.log("In current cart")
-        var cartTable = $(".cart-table")
-        var cartBody = cartTable.find(".cart-body")
-        var comboRows = cartBody.find(".combo-body")
-        var addonRows = cartBody.find(".addon-body")
-        var currentURL = window.location.href
-        // cartBody.html("<h1>Changed</h1>")
-        var refresCartURL = '/carts/cart/api/';
-        var refreshCartMethod = "GET";
-        var data = {};
-        $.ajax({
-          url: refresCartURL,
-          method: refreshCartMethod,
-          data: data,
-          success: function(data){
-            console.log("Success")
-            console.log(data)
-            if((data.addon.length > 0) || (data.combo.length > 0)){
-                // comboRows.html("")
-                // $.each(data.combo, function(index, value){
-                //   console.log(vakue)
-                //   comboRows.prepend("<tr>" + "<td>" + value.title + "</td><td>" + value.price + "</td><td>" + value.sale + "</td><td>" + value.quantity + "</td><td>" + value.combo_total + value.saved + "</td></tr>")
-                // })
-                // addonRows.html("")
-                // $.each(data.addon, function(index, value){
-                //   console.log(value)
-                //   addonRows.append("<tr>" + "<td>" + value.name + "</td><td>" + value.price + "</td><td></td><td>" + value.quantity + "</td><td>" + value.addon_total + "</td></tr>" )
-                // })
-                window.location.href = currentURL
-            }else{
-              window.location.href = currentURL
-            }
-          },
-          error: function(errorData){
-            console.log("error", errorData)
-          }
-        })
-      }
-
-    })
-  </script>
+  <script src="{% static 'js/base.js' %}"></script>
 
 </body>
 </html>

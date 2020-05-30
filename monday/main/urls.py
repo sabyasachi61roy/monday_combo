@@ -27,6 +27,7 @@ urlpatterns = [
     path('carts/', include('carts.urls', namespace='carts')),
     path('carts/checkout/', include('deliverypoints.urls', namespace='deliverypoints')),
     path('carts/checkout/', include('address.urls', namespace='address')),
+    path('search/', include("search.urls", namespace='search')),
 ]
 
 if settings.DEBUG:
