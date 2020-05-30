@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if addon.exists %}  
+    {% for obj in object_list %}
+            
+        {{obj.name}}  
+        {{obj.price}}   
+        <br>   
+
+    {% endfor %}
+    {% else %} 
+    {% for obj in object_list %}
+        
+         
+        {{obj.title}}   
+        {{obj.combo_regular_price}}     
+        <br>
+
+    {% endfor %}
+
+    {% endif %}
+
+{% endblock %}

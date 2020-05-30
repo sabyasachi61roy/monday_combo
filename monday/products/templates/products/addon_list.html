@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Addons</h1>
+        <hr>
+        {% for obj in object_list %}
+            <b style="font-size: 1.5em;">{{ obj.title }}</b>
+            <br>
+        {% endfor %}
+    </div>
+{% endblock %}

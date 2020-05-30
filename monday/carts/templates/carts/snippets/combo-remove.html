@@ -1,0 +1,6 @@
+{% load static %}
+<form method="POST" action="{% url 'carts:combo_remove_from_cart' %}" data-endpoint="{% url 'carts:combo_remove_from_cart' %}" class="form add-ajax">
+    {% csrf_token %}
+    <input type="hidden" name="combo_id" value="{{ combo_id }}">
+    <button type="submit" class="btn"><img src="{% static 'icons/trash.svg' %}"></button>
+</form>

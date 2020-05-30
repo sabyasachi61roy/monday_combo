@@ -18,12 +18,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from carts.views import cart_api
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls', namespace='products')),
+    path('carts/cart/api/', cart_api, name="cart-api"),
     path('carts/', include('carts.urls', namespace='carts')),
     path('carts/checkout/', include('deliverypoints.urls', namespace='deliverypoints')),
     path('carts/checkout/', include('address.urls', namespace='address')),
+    path('search/', include("search.urls", namespace='search')),
 ]
 
 if settings.DEBUG:
