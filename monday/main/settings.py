@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'orders',
     'address',
     'search',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'main.urls'
+
+AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATES = [
     {
