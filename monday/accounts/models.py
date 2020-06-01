@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
         if not password:
             raise ValueError("Users must have a password")
         user = self.model(
-            emai = self.normalize_email(email)
+            email = self.normalize_email(email)
         )
         user.set_password(password)
         user.active = is_active
