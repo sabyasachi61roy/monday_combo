@@ -60,22 +60,33 @@ $(document).ready(function(){
 
         var submitSpan = thisForm.find(".submit-span")
 
-        if(data.added){
-          submitSpan.html('<button type="submit" class="btn btn-success">Add More?</button>')
+        if(data.noUser){
           swal({
-          title: "",
-          text: "Added to cart!",
-          icon: "success",
-          button: "Okay",
-        })
+            title: "Opps! You are not logged in",
+            text: "Redirecting......",
+            button: false,
+          })
+          setTimeout(function(){
+            window.location.href='/accounts/login/'
+          }, 1000)
         }else{
-          if(data.updated){
+          if(data.added){
             submitSpan.html('<button type="submit" class="btn btn-success">Add More?</button>')
+            swal({
+            title: "",
+            text: "Added to cart!",
+            icon: "success",
+            button: "Okay",
+          })
           }else{
-            submitSpan.html('<button type="submit" class="btn btn-success">Add to Cart</button>')
+            if(data.updated){
+              submitSpan.html('<button type="submit" class="btn btn-success">Add More?</button>')
+            }else{
+              submitSpan.html('<button type="submit" class="btn btn-success">Add to Cart</button>')
+            }
           }
         }
-        // console.log(submitSpan.html())
+        
         var cartCount = $(".cart-count")
         cartCount.text(data.ItemCount)
         console.log(data.ItemCount)
@@ -84,6 +95,15 @@ $(document).ready(function(){
         }
       },
       error: function(errorData){
+        if(data.user){
+          swal({
+            title: "Opps!",
+            text: "Login",
+            icon: "error",
+            button: "Okay",
+          })
+        }
+        
         // alert("An error occured")
         // $.alert("An error occured")
         // swal("Error!","An error occurred", "error")
@@ -152,7 +172,6 @@ $(document).ready(function(){
         swal({
           title: "Opps!",
           text: "An error occured!",
-          icon: "error",
           button: "Okay",
         })
         console.log("error", errorData)

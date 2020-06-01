@@ -9,8 +9,10 @@ class UserManager(BaseUserManager):
             raise ValueError('User must have an email address')
         if not password:
             raise ValueError("Users must have a password")
+        # if not full_name:
+        #     raise ValueError("Users must have fullname")
         user_obj = self.model(
-            email = self.normalize_email(email)
+            email = self.normalize_email(email),
         )
         user_obj.set_password(password)
         user_obj.active = is_active
@@ -42,7 +44,7 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
 
-    REQUIRED_FIELDS = [] #['full_name']
+    REQUIRED_FIELDS = ['full_name'] #['full_name']
 
     objects = UserManager()
 

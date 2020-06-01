@@ -1,7 +1,7 @@
 {% load static %}
 <form method="POST" action="{% url 'carts:addon_add_to_cart' %}" data-endpoint="{% url 'carts:addon_add_to_cart' %}" class="form add-ajax">
     {% csrf_token %}
-    <input type="hidden" name="addon_id" value="{{ addon_id }}">
+    <input type="hidden" name="addon_id" value="{{ addon.id }}">
     <span class="submit-span">
         <button type="submit" class="btn btn-success">Add to Cart</button>
     </span>
