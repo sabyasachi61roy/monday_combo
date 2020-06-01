@@ -6,3 +6,5 @@ python manage.py dumpdata products.Addon --format json --indent 4
 python manage.py dumpdata products.Products --format json --indent 4
 
 python manage.py dumpdata products --format json --indent 4 > products/fixtures/products.json
+
+python manage.py loaddata products/fixtures/products.json
