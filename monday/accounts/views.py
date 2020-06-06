@@ -1,11 +1,33 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.utils.http import is_safe_url
-from django.views.generic import CreateView, FormView
+from django.views.generic import CreateView, FormView, DetailView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
 
 from .forms import LoginForm, RegisterForm
 
 # Create your views here.
+@login_required
+def account_home(request):
+    return render(request, "accounts/home.html")
+
+# class LoginRequiredMixin(object):
+#     @method_decorator(login_required)
+#     def dispatch(self, *args, **kwargs):
+#         return super(LoginRequiredMixin, self).dispatch(self, *args, **kwargs)
+
+class AccountHome(LoginRequiredMixin, DetailView):
+    template_name = 'accounts/home.html'
+
+    def get_object(self):
+        return self.request.user
+    
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(AccountHome, self).dispatch(self, *args, **kwargs)
+
 class Register(CreateView):
     form_class = RegisterForm
     template_name = 'accounts/register.html'

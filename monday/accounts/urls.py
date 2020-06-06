@@ -9,4 +9,5 @@ urlpatterns = [
     path('register/', Register.as_view(), name='register'),
     # path('login/', login_page, name='login'),
     path('login/', Login.as_view(), name='login'),
+    path('home/', AccountHome.as_view(), name='account-home'),
 ]

@@ -23,7 +23,7 @@ from marketing.views import MarketingView, MailchimpWebhookView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('account/', include('accounts.urls', namespace='accounts')),
     path('', include('products.urls', namespace='products')),
     path('carts/cart/api/', cart_api, name="cart-api"),
     path('carts/', include('carts.urls', namespace='carts')),

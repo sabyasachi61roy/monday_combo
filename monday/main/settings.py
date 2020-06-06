@@ -51,9 +51,9 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'accounts.User'
 
-MAILCHIMP_API_KEY = ""
-MAILCHIMP_DATA_CENTER = ""
-MAILCHIMP_LIST_ID = ""
+MAILCHIMP_API_KEY = "425af70daef407a53baa8aaf70c20d72-us19"
+MAILCHIMP_DATA_CENTER = "us19"
+MAILCHIMP_LIST_ID = "71cbfcb794"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
