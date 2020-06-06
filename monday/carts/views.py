@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 
 from .models import Cart, ComboCartItem, AddonCartItem
 
@@ -36,7 +37,7 @@ def cart_api(request):
     
     addons = [
         {
-        "id": y.combo.id,
+        "id": y.addon.id,
         # "url": y.combo.get_absolute_url(),
         "name": y.addon.name,
         "price": y.addon.price,
@@ -50,7 +51,6 @@ def cart_api(request):
     
     return JsonResponse(cart_data)
 
-
 def cart(request):
     cart_obj, new_obj = Cart.objects.new_or_get(request)
     context = {
@@ -58,58 +58,67 @@ def cart(request):
     }
     return render(request, 'carts/cart-view.html', context)
 
-def combo_add_to_cart(request):
+@login_required(login_url='/accounts/login/')
+def combo_add_to_cart(request):    
     combo_id = request.POST.get('combo_id')
-
-    if combo_id is not None:
-        try:
-            combo_obj = Combo.objects.get(id=combo_id)
-        except Combo.DoesNotExist:
-            return("carts:cart")
-    
-        combo = combo_obj
-    
-        cart_item, created = ComboCartItem.objects.get_or_create(
-            combo=combo,
-            user=request.user,
-            ordered=False
-        )
-    
-        cart_obj, new_obj = Cart.objects.new_or_get(request)
-    
-        if cart_obj.combo_item.filter(combo__id=combo.id).exists():
-            cart_item.quantity += 1
-            cart_item.save()
-            print("Cart Item Updated")
-            added = False
-            updated = True
-            # return redirect("carts:cart")
-        else:
-            cart_obj.combo_item.add(cart_item)
-            print("Combo Added")
-            added = True
-            updated = False
-            # return redirect("carts:cart")
-
-        # print(combo_id)
-        cartCount = cart_obj.get_cartItems()
-        print(cartCount)
+    if not request.user.is_authenticated:
         if request.is_ajax():
             print("Ajax Request")
             json_data = {
-            "added": added,
-            # "not_added": not added,
-            "updated": updated,
-            # "not_updated": not updated
-            "ItemCount": cartCount
+            "noUser": True,
             }   
             return JsonResponse(json_data, status=200)
-            # return JsonResponse("message: Error", status_code=400)
+    else:        
+        if combo_id is not None:
+            try:
+                combo_obj = Combo.objects.get(id=combo_id)
+            except Combo.DoesNotExist:
+                return("carts:cart")
+        
+            combo = combo_obj
+        
+            cart_item, created = ComboCartItem.objects.get_or_create(
+                combo=combo,
+                user=request.user,
+                ordered=False
+            )
+        
+            cart_obj, new_obj = Cart.objects.new_or_get(request)
+        
+            if cart_obj.combo_item.filter(combo__id=combo.id).exists():
+                cart_item.quantity += 1
+                cart_item.save()
+                print("Cart Item Updated")
+                added = False
+                updated = True
+                # return redirect("carts:cart")
+            else:
+                cart_obj.combo_item.add(cart_item)
+                print("Combo Added")
+                added = True
+                updated = False
+                # return redirect("carts:cart")
+
+            # print(combo_id)
+            cartCount = cart_obj.get_cartItems()
+            print(cartCount)
+            if request.is_ajax():
+                print("Ajax Request")
+                json_data = {
+                "added": added,
+                # "not_added": not added,
+                "updated": updated,
+                # "not_updated": not updated
+                "ItemCount": cartCount
+                }   
+                return JsonResponse(json_data, status=200)
+                # return JsonResponse("message: Error", status_code=400)
 
     return redirect("carts:cart")
 
 def combo_remove_from_cart(request):
     combo_id = request.POST.get('combo_id')
+    print(combo_id)
     
     if combo_id is not None:
         try:
@@ -156,6 +165,7 @@ def combo_remove_from_cart(request):
         else:
             print("Home")
             return redirect("/")
+    return redirect("carts:cart")
 
 def combo_remove_single_to_cart(request):
     combo_id = request.POST.get('combo_id')
@@ -211,51 +221,60 @@ def combo_remove_single_to_cart(request):
         else:
             print("Home")
             return redirect("/")
+    return redirect("carts:cart")
 
+@login_required(login_url='/accounts/login/')
 def addon_add_to_cart(request):
     addon_id = request.POST.get('addon_id')
-
-    if addon_id is not None:
-        try:
-            addon_obj = Addon.objects.get(id=addon_id)
-        except Addon.DoesNotExist:
-            return("carts:cart")
-    
-        addon = addon_obj
-        cart_item, created = AddonCartItem.objects.get_or_create(
-            addon=addon,
-            user=request.user,
-            ordered=False
-        )
-        
-        cart_obj, new_obj = Cart.objects.new_or_get(request)
-        
-        if cart_obj.addon_item.filter(addon__id=addon.id).exists():
-            cart_item.quantity += 1
-            cart_item.save()
-            print("Cart Item Updated")
-            added = False
-            updated = True
-            # return redirect("carts:cart")
-        else:
-            cart_obj.addon_item.add(cart_item)
-            print("Addon Added")
-            added = True
-            updated = False
-            # return redirect("carts:cart")
-
-        cartCount = cart_obj.get_cartItems()
-        print(cartCount)
+    if not request.user.is_authenticated:
         if request.is_ajax():
             print("Ajax Request")
             json_data = {
-            "added": added,
-            # "not_added": not added,
-            "updated": updated,
-            # "not_updated": not updated
-            "ItemCount": cartCount,
+            "noUser": True,
             }   
-            return JsonResponse(json_data)
+            return JsonResponse(json_data, status=200)
+    else:
+        if addon_id is not None:
+            try:
+                addon_obj = Addon.objects.get(id=addon_id)
+            except Addon.DoesNotExist:
+                return("carts:cart")
+        
+            addon = addon_obj
+            cart_item, created = AddonCartItem.objects.get_or_create(
+                addon=addon,
+                user=request.user,
+                ordered=False
+            )
+            
+            cart_obj, new_obj = Cart.objects.new_or_get(request)
+            
+            if cart_obj.addon_item.filter(addon__id=addon.id).exists():
+                cart_item.quantity += 1
+                cart_item.save()
+                print("Cart Item Updated")
+                added = False
+                updated = True
+                # return redirect("carts:cart")
+            else:
+                cart_obj.addon_item.add(cart_item)
+                print("Addon Added")
+                added = True
+                updated = False
+                # return redirect("carts:cart")
+
+            cartCount = cart_obj.get_cartItems()
+            print(cartCount)
+            if request.is_ajax():
+                print("Ajax Request")
+                json_data = {
+                "added": added,
+                # "not_added": not added,
+                "updated": updated,
+                # "not_updated": not updated
+                "ItemCount": cartCount,
+                }   
+                return JsonResponse(json_data)
     return redirect("carts:cart")
 
 def addon_remove_from_cart(request):

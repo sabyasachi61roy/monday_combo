@@ -42,10 +42,18 @@ INSTALLED_APPS = [
     'carts',
     'billing',
     'deliverypoints',
+    'marketing',
     'orders',
     'address',
     'search',
+    'accounts',
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+
+MAILCHIMP_API_KEY = ""
+MAILCHIMP_DATA_CENTER = ""
+MAILCHIMP_LIST_ID = ""
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
