@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from carts.views import cart_api
+from marketing.views import MarketingView, MailchimpWebhookView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +30,8 @@ urlpatterns = [
     path('carts/checkout/', include('deliverypoints.urls', namespace='deliverypoints')),
     path('carts/checkout/', include('address.urls', namespace='address')),
     path('search/', include("search.urls", namespace='search')),
+    path('settings/email/', MarketingView.as_view(), name="marketing"),
+    path('webhook/maichimp/', MailchimpWebhookView.as_view(), name="webhook-mailchimp"),
 ]
 
 if settings.DEBUG:
