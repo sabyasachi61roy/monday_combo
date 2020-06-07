@@ -5,6 +5,7 @@ from django.views.generic import CreateView, FormView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
+from django.contri import messages
 
 from .forms import LoginForm, RegisterForm
 
@@ -47,6 +48,9 @@ class Login(FormView):
         password = form.cleaned_data.get('password')
         user = authenticate(request, email=email, password=password)
         if user is not None:
+            if not user.is_active:
+                messages.error(request, "This account is inactive")
+                return super(Login, self).form_invalid(form)
             login(request, user)
             if is_safe_url(redirect_path, request.get_host()):
                 return redirect(redirect_path)
