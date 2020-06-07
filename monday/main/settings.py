@@ -27,6 +27,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+EMAIL_HOST = ""
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+EMAIL_PORT = None
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = ""
+BASE_URL = "127.0.0.1:8000"
+
+MANAGERS = ('')
+
+ADMINS = MANAGERS
 
 # Application definition
 
