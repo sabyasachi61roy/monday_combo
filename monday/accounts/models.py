@@ -1,14 +1,18 @@
+from datetime import timedelta
 from django.conf import settings
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db.models.signals import pre_save, post_save
 
 from django.core.mail import send_mail
 from django.template.loader import get_template
+from django.utils import timezone
 
 from main.utils import random_string_generator, unique_key_generator
 from random import randint
 
+DEFAULT_ACTIVATION_DAYS = getattr(settings, 'DEFAULT_ACTIVATION_DAYS', 2)
 
 # Create your models here.
 class UserManager(BaseUserManager):
@@ -85,6 +89,26 @@ class User(AbstractBaseUser):
     # def is_active(self):
     #     return self.is_active
 
+class EmailActivationQuerySet(models.query.QuerySet):       #EmailActivation.objects.all().confirmable()
+    def confirmable(self):
+        now = timezone.now()
+        start_range = now - timedelta(days=DEFAULT_ACTIVATION_DAYS)
+        end_range = now
+        return self.filter(
+            activated = False,
+            forced_expired = False
+        ).filter(
+            timestamp__get=start_range,
+            timestamp__lte=end_range
+        )
+
+class EmailActivationManager(models.Manager):
+    def get_queryset(self):
+        return EmailActivationQuerySet(self.model, using=self._db)
+    
+    def confirmable(self):
+        return self.get_queryset().confirmable()
+
 class EmailActivation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField()
@@ -95,15 +119,33 @@ class EmailActivation(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    objects = EmailActivationManager()
+
     def __str__(self):
         return self.email
 
-        def regenerate(self):
-            self.key = None
+    def can_activate(self):
+        qs = EmailActivation.objects.filter(pk=self.pk).confirmable()
+        if qs.exists():
+            return True
+        return False
+    
+    def activate(self):
+        if self.can_activate():
+            user = self.user
+            user.is_active = True
+            user.save()
+            self.activated = True
             self.save()
-            if self.key is not None:
-                return True
-            return False
+            return True
+        return False
+
+    def regenerate(self):
+        self.key = None
+        self.save()
+        if self.key is not None:
+            return True
+        return False
 
     def send_activation(self):
         if not self.activated and not self.forced_expired:
@@ -131,7 +173,7 @@ class EmailActivation(models.Model):
                 return send_mail
         return False
 
-def pre_save_email_activateion(sender, instance, *args, **kwargs):
+def pre_save_email_activation(sender, instance, *args, **kwargs):
     if not instance.activated and not instance.forced_expired:
         if not instance.key:
             # size = randint(30,45)
@@ -141,3 +183,12 @@ def pre_save_email_activateion(sender, instance, *args, **kwargs):
             #     key = random_string_generator(size=size)
             # instance.key = key
             instance.key = unique_key_generator(instance)
+
+pre_save.connect(pre_save_email_activation, sender=EmailActivation)
+
+def post_save_user_create_receiver(sender, instance, created, *args, **kwargs):
+    if created:
+        obj = EmailActivation.objects.create(user=instance, email=instance.email)
+        obj.send_activation()
+
+post_save.connect(post_save_user_create_receiver, sender=User)        

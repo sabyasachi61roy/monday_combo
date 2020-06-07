@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from .models import User
+from .models import User, EmailActivation
 
 class LoginForm(forms.Form):
     email = forms.EmailField()
@@ -33,6 +33,8 @@ class RegisterForm(forms.ModelForm):
         user = super(RegisterForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.is_active = False
+        # obj, is_created = EmailActivation.objects.create(user=user)
+        # obj.send_activation_email()
         if commit:
             user.save()
         return user
