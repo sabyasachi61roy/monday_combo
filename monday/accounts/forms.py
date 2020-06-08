@@ -1,12 +1,69 @@
 # accounts.forms.py
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib import messages
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+
+from .signals import user_logged_in
 from .models import User, EmailActivation
 
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, request, *args, **kwargs):
+        self.request = request
+        super(LoginForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        request = self.request
+        data = self.cleaned_data
+        email = data.get('email')
+        password = data.get('password')
+        qs = User.objects.filter(email=email)
+        if qs.exists():
+            not_active = qs.filter(is_active=False)
+            if not_active.exists():
+                confirm_email = EmailActivation.objects.filter(email=email)
+                is_confirmable = confirm_email.confirmable().exists()
+                if is_confirmable:
+                    raise forms.ValidationError("Please check your email to activate your account")
+                email_confirm_qs = EmailActivation.objects.email_exists(email).exists()
+                if email_confirm_qs:
+                    raise forms.ValidationError("Please check your email to activate your account")
+                if not is_confirmable and not email_confirm_qs:
+                    raise forms.ValidationError("User inactive")
+
+        user = authenticate(request, email=email, password=password)
+        if user is None:
+            raise forms.ValidationError("Invalid Credentials")
+        login(request, user)
+        self.user = user
+        user_logged_in.send(user.__class__, instance=user, request=request)
+        return data
+
+    # def form_valid(self, form):
+    #     request = self.request
+    #     next_ = request.GET.get('next')
+    #     next_post = request.POST.get('next')
+    #     redirect_path = next_ or next_post or None
+    #     email = form.cleaned_data.get('email')
+    #     password = form.cleaned_data.get('password')
+    #     user = authenticate(request, email=email, password=password)
+    #     if user is not None:
+    #         if not user.is_active:
+    #             messages.error(request, "This account is inactive")
+    #             return super(Login, self).form_invalid(form)
+    #         login(request, user)
+    #         if is_safe_url(redirect_path, request.get_host()):
+    #             return redirect(redirect_path)
+    #         else:
+    #             return redirect("/")
+    #     return super(Login, self).form_invalid(form)
 
 class RegisterForm(forms.ModelForm):
     """
@@ -85,3 +142,17 @@ class UserAdminChangeForm(forms.ModelForm):
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial["password"]
+
+class ReactivateAccount(forms.Form):
+    email = forms.EmailField()
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        qs = EmailActivation.objects.email_exists(email)
+        if not qs.exists():
+            reset_link = reverse("accounts:register")
+            msg = """This email does not exists!
+            Register a <a href='{link}'>new account</a>?
+            """.format(link=reset_link)
+            raise forms.ValidationError(mark_safe(msg))
+        return email

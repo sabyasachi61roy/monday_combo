@@ -2,12 +2,14 @@ from datetime import timedelta
 from django.conf import settings
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db.models.signals import pre_save, post_save
 
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.utils import timezone
+from django.urls import reverse
 
 from main.utils import random_string_generator, unique_key_generator
 from random import randint
@@ -98,7 +100,7 @@ class EmailActivationQuerySet(models.query.QuerySet):       #EmailActivation.obj
             activated = False,
             forced_expired = False
         ).filter(
-            timestamp__get=start_range,
+            timestamp__gte=start_range,
             timestamp__lte=end_range
         )
 
@@ -108,6 +110,12 @@ class EmailActivationManager(models.Manager):
     
     def confirmable(self):
         return self.get_queryset().confirmable()
+
+    def email_exists(self, email):
+        return self.get_queryset().filter(
+            Q(email=email) | 
+            Q(user__email=email)
+            ).filter(activted=False)
 
 class EmailActivation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -151,7 +159,8 @@ class EmailActivation(models.Model):
         if not self.activated and not self.forced_expired:
             if self.key:
                 base_url = getattr(settings, "BASE_URL", None)
-                key_path = self.key 
+                # key_path = self.key 
+                key_path = reverse("accounts:account-activate", args={'key':self.key})
                 path = "{base}{path}".format(base=base_url, path=key_path)
                 context = {
                     'path': path,
