@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.utils.http import is_safe_url
-from django.views.generic import CreateView, FormView, DetailView, View
+from django.views.generic import CreateView, FormView, DetailView, View, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic.edit import FormMixin
 
-from .forms import LoginForm, RegisterForm, ReactivateAccount
+from .forms import LoginForm, RegisterForm, ReactivateAccount, UserProfileForm
 from .models import EmailActivation
 from .signals import user_logged_in
 from main.mixins import NextURLMixin, RequestFormMixin
@@ -25,6 +25,21 @@ def account_home(request):
 #     @method_decorator(login_required)
 #     def dispatch(self, *args, **kwargs):
 #         return super(LoginRequiredMixin, self).dispatch(self, *args, **kwargs)
+
+class UserProfileUpdate(LoginRequiredMixin, UpdateView):
+    form_class = UserProfileForm
+    template_name = "accounts/form.html"
+
+    def get_object(self):
+        return self.request.user
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(UserProfileUpdate, self).get_context_data(*args, **kwargs)
+        context['title'] = "Change User details"
+        return context
+    
+    def get_success_url(self):
+        return reverse("accounts:account-home")
 
 class AccountHome(LoginRequiredMixin, DetailView):
     template_name = 'accounts/home.html'

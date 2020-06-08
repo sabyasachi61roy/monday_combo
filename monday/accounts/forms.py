@@ -28,13 +28,17 @@ class LoginForm(forms.Form):
         if qs.exists():
             not_active = qs.filter(is_active=False)
             if not_active.exists():
+                link = reverse("accounts:resend-activate")
+                reconfirm_msg = """<a href='{resend_link}'>click here.</a>
+                """.format(resend_link=link)
                 confirm_email = EmailActivation.objects.filter(email=email)
                 is_confirmable = confirm_email.confirmable().exists()
                 if is_confirmable:
-                    raise forms.ValidationError("Please check your email to activate your account")
+                    msg = "To resend confirmation email" + reconfirm_msg
+                    raise forms.ValidationError(mark_safe(msg))
                 email_confirm_qs = EmailActivation.objects.email_exists(email).exists()
                 if email_confirm_qs:
-                    raise forms.ValidationError("Please check your email to activate your account")
+                    raise forms.ValidationError(mark_safe("You email is not confirmed. Please check your email or " + reconfirm_msg + "to resend confirmation email."))
                 if not is_confirmable and not email_confirm_qs:
                     raise forms.ValidationError("User inactive")
 
@@ -142,6 +146,12 @@ class UserAdminChangeForm(forms.ModelForm):
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial["password"]
+
+class UserProfileForm(forms.ModelForm):
+    full_name = forms.CharField(label="Name", required=False, widget=forms.TextInput(attrs={"class":"form-control"}))
+    class Meta:
+        model = User
+        fields = ['full_name',]
 
 class ReactivateAccount(forms.Form):
     email = forms.EmailField()
