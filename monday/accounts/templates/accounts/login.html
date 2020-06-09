@@ -2,12 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <h4>Login</h4>
-    <form action="" method="POST">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Login</button>
-    </form>
+    <div class="col-4 col-sm-8 col-md-12">
+        <h4>Login</h4>
+        <form action="" method="POST" class="d-flex" style="align-items: center; flex-direction: column;">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
 </div>    
 
 {% endblock %}

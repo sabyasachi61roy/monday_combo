@@ -1,0 +1,13 @@
+Hey there,
+
+To activate your account for {{email}} please click the link below:
+
+
+{{path}}
+
+
+
+
+Regards,
+
+    Team Monday

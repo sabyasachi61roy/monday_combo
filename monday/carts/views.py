@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from .models import Cart, ComboCartItem, AddonCartItem
 
@@ -58,10 +59,11 @@ def cart(request):
     }
     return render(request, 'carts/cart-view.html', context)
 
-@login_required(login_url='/accounts/login/')
+# @login_required(login_url='/accounts/login/')
 def combo_add_to_cart(request):    
     combo_id = request.POST.get('combo_id')
     if not request.user.is_authenticated:
+        messages.error(request, "Please login to add item")
         if request.is_ajax():
             print("Ajax Request")
             json_data = {
@@ -223,10 +225,11 @@ def combo_remove_single_to_cart(request):
             return redirect("/")
     return redirect("carts:cart")
 
-@login_required(login_url='/accounts/login/')
+# @login_required(login_url='/accounts/login/')
 def addon_add_to_cart(request):
     addon_id = request.POST.get('addon_id')
     if not request.user.is_authenticated:
+        messages.error(request, "Please login to add item")
         if request.is_ajax():
             print("Ajax Request")
             json_data = {

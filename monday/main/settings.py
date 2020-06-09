@@ -27,6 +27,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+EMAIL_HOST = ""
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+EMAIL_PORT = None
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = ""
+BASE_URL = "127.0.0.1:8000"
+
+MANAGERS = ('')
+
+ADMINS = MANAGERS
 
 # Application definition
 
@@ -50,10 +61,11 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
+LOGOUT_REDIRECT_URL = '/'
 
-MAILCHIMP_API_KEY = ""
-MAILCHIMP_DATA_CENTER = ""
-MAILCHIMP_LIST_ID = ""
+MAILCHIMP_API_KEY = "425af70daef407a53baa8aaf70c20d72-us19"
+MAILCHIMP_DATA_CENTER = "us19"
+MAILCHIMP_LIST_ID = "71cbfcb794"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

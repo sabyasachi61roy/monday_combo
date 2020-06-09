@@ -1,5 +1,6 @@
 import math
 from django.db import models
+from django.urls import reverse
 from django.db.models.signals import pre_save, post_save
 from billing.models import BillingProfile
 from deliverypoints.models import SelectDeliveryPoint, DeliveryPoint
@@ -14,6 +15,7 @@ ORDER_STATUS_CHOICES = (
     ('Created', 'Created'),
     ('Processing', 'Processing'),
     ('Shipped', 'Shipped'),
+    ('Completed', 'Completed'),
     ('Cancelled', 'Cancelled'),
     ('Refunded', 'Refunded'),
 )
@@ -23,8 +25,22 @@ ORDER_PAYMENT_METHOD = (
     ("PREPAID", "PREPAID"),
 )
 
+class OderManagerQuerySet(models.query.QuerySet):
+    def by_request(self, request):
+        billing_profile, created = BillingProfile.objects.new_or_get(request)
+        return self.filter(billing_profile=billing_profile)
+
+    def not_created(self):
+        return self.exclude(status='Created')
+
 # Create your models here.
 class OrderManager(models.Manager):
+    def get_queryset(self):
+        return OderManagerQuerySet(self.model, using=self._db)
+
+    def by_request(self, request):
+        return self.get_queryset().by_request(request)
+
     def new_or_get(self, cart_obj, billing_profile):
         created = False
         qs = self.get_queryset().filter(cart=cart_obj, billing_profile=billing_profile, active=True, status='created')
@@ -48,11 +64,33 @@ class Order(models.Model):
     status = models.CharField(max_length=120, default='created', choices=ORDER_STATUS_CHOICES)
     active = models.BooleanField(default=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     objects = OrderManager()
 
     def __str__(self):
         return self.order_id
+
+    class Meta:
+        ordering = ['-timestamp', '-updated']
+
+    def get_absolute_url(self):
+        return reverse("orders:order-detail", kwargs={"order_id": self.order_id})
+
+    def get_status(self):
+        if self.status == 'Created':
+            return "Processing"
+        elif self.status == 'Processing':
+            return "Sipping soon"
+        elif self.status == 'Shipped':
+            return 'On it way'
+        elif self.status == 'Cancelled':
+            return "Cancelled"
+        elif self.status == 'Refunded':
+            return "Refunded"
+        else:
+            return 'Completed'
 
     def update_total(self):
         c_total = self.cart.cart_total

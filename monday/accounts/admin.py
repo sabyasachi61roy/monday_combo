@@ -6,6 +6,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .forms import UserAdminCreationForm, UserAdminChangeForm
 
+from .models import EmailActivation
+
 User = get_user_model()
 
 # class UserAdmin(admin.ModelAdmin):
@@ -29,7 +31,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('full_name',)}),
-        ('Permissions', {'fields': ('admin', 'staff', 'active')}),
+        ('Permissions', {'fields': ('admin', 'staff', 'is_active')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -43,8 +45,14 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
+class EmailActivationAdmin(admin.ModelAdmin):
+    search_field = ['email']
+    class Meta:
+        model = EmailActivation
+
 # Register your models here.
 admin.site.register(User, UserAdmin)
+admin.site.register(EmailActivation, EmailActivationAdmin)
 
 # Remove Group Model from admin. We're not using it.
 admin.site.unregister(Group)

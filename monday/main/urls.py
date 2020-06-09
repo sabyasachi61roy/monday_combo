@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import url
+from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -24,6 +26,8 @@ from marketing.views import MarketingView, MailchimpWebhookView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('accounts/', include('accounts.passwords.urls')),
+    path('profile/orders/', include('orders.urls', namespace='orders')),
     path('', include('products.urls', namespace='products')),
     path('carts/cart/api/', cart_api, name="cart-api"),
     path('carts/', include('carts.urls', namespace='carts')),
@@ -32,6 +36,28 @@ urlpatterns = [
     path('search/', include("search.urls", namespace='search')),
     path('settings/email/', MarketingView.as_view(), name="marketing"),
     path('webhook/maichimp/', MailchimpWebhookView.as_view(), name="webhook-mailchimp"),
+
+    # url(r'^accounts/password/change/$', 
+    #         auth_views.PasswordChangeView.as_view(), 
+    #         name='password_change'),
+    # url(r'^accounts/password/change/done/$',
+    #         auth_views.PasswordChangeDoneView.as_view(), 
+    #         name='password_change_done'),
+    # url(r'^accounts/password/reset/$', 
+    #         auth_views.PasswordResetView.as_view(), 
+    #         name='password_reset'),
+    # url(r'^accounts/password/reset/done/$', 
+    #         auth_views.PasswordResetDoneView.as_view(), 
+    #         name='password_reset_done'),
+    # url(r'^accounts/password/reset/\
+    #         (?P<uidb64>[0-9A-Za-z_\-]+)/\
+    #         (?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', 
+    #         auth_views.PasswordResetConfirmView.as_view(), 
+    #         name='password_reset_confirm'),
+
+    # url(r'^accounts/password/reset/complete/$', 
+    #         auth_views.PasswordResetCompleteView.as_view(), 
+    #         name='password_reset_complete'),
 ]
 
 if settings.DEBUG:

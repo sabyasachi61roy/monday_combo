@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container my-2">
+        <div class="row my-3">
+            <div class="col-12"><h3>Orders</h3></div>
+        </div>
+        <div class="row my-3">
+            <div class="col my-3">
+                <table class="table">
+                    <thead>
+                        <th>Order ID</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </thead>
+                    <tbody>
+                        {% for object in object_list %}
+                            <tr>
+                                <td><a href="{{object.get_absolute_url}}">{{object.order_id}}</a></td>
+                                <td>{{object.total}}</td>
+                                <td>
+                                    {% if object.status == 'Created' %}
+                                        <p style="color: black;">{{object.status}}</p>
+                                    {% elif object.status == 'Processing' %}
+                                        <p style="color: grey;">{{object.status}}</p>
+                                    {% elif object.status == 'Shipped' %}
+                                        <p style="color:lightseagreen">{{object.status}}</p>
+                                    {% elif object.status == 'Cancelled' %}
+                                        <p style="color: red;">{{object.status}}</p>
+                                    {% elif object.status == 'Completed' %}
+                                        <p style="color:green">{{object.status}}</p>
+                                    {% else %}
+                                        <p style="color: orange;">{{object.status}}</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3"><p class="lead">No orders yet</p></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock%}

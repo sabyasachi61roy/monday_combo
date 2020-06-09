@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container">
+        <h3>Order {{ object.order_id }}</h3>
+        <h6>Combo: </h6>
+        {% for product in object.cart.combo_item.all %}
+        <p>{{product}}</p>
+        {% endfor %}
+        <h6>Addon: </h6>
+        {% for product in object.cart.addon_item.all %}
+        <p>{{product}}</p>
+        {% endfor %}
+        <h6>Shipping Address:</h6>
+        <p>{{object.shipping_address.get_address}}</p>
+        {% if object.delivery_point %}
+        <h6>Delivery Point:</h6>
+        <p>{{object.delivery_point}}</p>
+        {% endif %}
+        <h6>Total</h6>
+        <p>{{object.total}}</p>
+        <h6>Payment method</h6>
+        <p>{{object.payment_method}}</p>
+        <h6>Order Status</h6>
+        <p>{{object.status}}</p>
+    </div>
+{% endblock%}
