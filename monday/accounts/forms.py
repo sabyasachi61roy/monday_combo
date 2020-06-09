@@ -34,7 +34,7 @@ class LoginForm(forms.Form):
                 confirm_email = EmailActivation.objects.filter(email=email)
                 is_confirmable = confirm_email.confirmable().exists()
                 if is_confirmable:
-                    msg = "To resend confirmation email" + reconfirm_msg
+                    msg = "Your account is not activated. To resend confirmation email" + " " + reconfirm_msg
                     raise forms.ValidationError(mark_safe(msg))
                 email_confirm_qs = EmailActivation.objects.email_exists(email).exists()
                 if email_confirm_qs:

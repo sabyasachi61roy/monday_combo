@@ -115,7 +115,7 @@ class EmailActivationManager(models.Manager):
         return self.get_queryset().filter(
             Q(email=email) | 
             Q(user__email=email)
-            ).filter(activted=False)
+            ).filter(activated=False)
 
 class EmailActivation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

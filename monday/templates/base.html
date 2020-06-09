@@ -41,7 +41,7 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="{% url 'accounts:account-home' %}">Profile</a>
-              <a class="dropdown-item" href="">Orders</a>
+              <a class="dropdown-item" href="{% url 'orders:order-list' %}">Orders</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a>
             </div>
@@ -60,14 +60,14 @@
 
   {% if messages %}
     <div class="alert alert-success messages">
-        {% for message in messages %}
+      {% for message in messages %}
         <span{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
-            {{ message }}
-    </span>
-        {% endfor %}
-      </div>
-{% endif %}
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+          {{ message }}
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   {% block content%}
   {% endblock %}
@@ -81,8 +81,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 
   <script src="{% static 'js/csrf_token.js' %}"></script>
-
   <script src="{% static 'js/base.js' %}"></script>
+
 
 </body>
 </html>
